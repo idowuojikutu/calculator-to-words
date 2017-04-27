@@ -121,6 +121,6 @@ Convert Number into Word </br>
 
 <h3>Screenshot</h3>
 
-![alt text](screenshots/1.png "Scene1")
-![alt text](screenshots/2.png "Scene2")
-![alt text](screenshots/3.png "Scene3")
+![alt text](screenshots/1.jpeg "Scene1")
+![alt text](screenshots/2.jpeg "Scene2")
+![alt text](screenshots/3.jpeg "Scene3")
