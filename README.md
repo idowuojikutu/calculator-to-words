@@ -28,8 +28,8 @@ Github: https://goo.gl/jPHFPe </br>
 
 
 <h3>Application Functions</h3>
-Calculator </br>
-Convert Number into Word </br>
+1) Calculator </br>
+2) Convert Number into Word </br>
 
 
 <h3>Source Code</h3>
