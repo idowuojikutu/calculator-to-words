@@ -3,12 +3,11 @@ Developer: Anthony A. Castor
 
 This Source does not give any warranty please use at your own risk </br>
 
-This is a demo application for people who want to implement a facebook login and facebook share in their application. </br>
+Calculator: Number to Words Application that will output any number to words </br>
 
 This application is free of virus or malware </br>
 
 <h3>Software Requirment </h3>
-facebook-unity-sdk-7.9.0<br/>
 Unity 5.6<br/>
 Unity C#<br/>
 
@@ -29,39 +28,95 @@ Github: https://goo.gl/jPHFPe </br>
 
 
 <h3>Application Functions</h3>
-Facebook Login </br>
-Facebook Share </br>
+Calculator </br>
+Convert Number into Word </br>
 
 
 <h3>Source Code</h3>
 
-	public class FBShareScreenShotTest : MonoBehaviour {
+	//Calulation to Words
+	public string DecimalToWords(decimal number)
+	{
+		if (number == 0)
+			return "zero";
 
-		public void ShareScreenShot(){
-			Debug.Log ("SHARE");
-			//ShareScoreOnFB();
-			FB.ShareLink(
-				new Uri("https://play.google.com/store/apps/developer?id=Jason%20Ledesma&hl=en"),
-				"Rebisco",
-				"Lets have a great adventure.",
-				new Uri("http://immersivemedia.ph/rebiscodb/Artifact/Artifact_Jar.jpg"),
-				callback: ShareCallback);
+		if (number < 0)
+			return "minus " + DecimalToWords(Math.Abs(number));
+
+		string words = "";
+
+		long intPortion = (long)number;
+		decimal fraction = (number - intPortion)*100;
+		long decPortion = (long)fraction;
+
+		words = NumberToWords(intPortion);
+		if (decPortion > 0)
+		{
+			words += " and ";
+			words += NumberToWords(decPortion);
+		}
+		return words;
+	}
+
+	public static string NumberToWords(long number)
+	{
+		if (number == 0)
+			return "zero";
+
+		if (number < 0)
+			return "minus " + NumberToWords(Math.Abs(number));
+
+		string words = "";
+
+		if ((number / 1000000000000) > 0)
+		{
+			words += NumberToWords(number / 1000000000000) + " trillion ";
+			number %= 1000000000000;
 		}
 
+		if ((number / 1000000000) > 0)
+		{
+			words += NumberToWords(number / 1000000000) + " billion ";
+			number %= 1000000000;
+		}
 
-		private void ShareCallback (IShareResult result) {
-			if (result.Cancelled || !String.IsNullOrEmpty(result.Error)) {
-				Debug.Log("ShareLink Error: "+result.Error);
-			} else if (!String.IsNullOrEmpty(result.PostId)) {
-				// Print post identifier of the shared content
-				Debug.Log(result.PostId);
-			} else {
-				// Share succeeded without postID
-				Debug.Log("ShareLink success!");
+		if ((number / 1000000) > 0)
+		{
+			words += NumberToWords(number / 1000000) + " million ";
+			number %= 1000000;
+		}
 
+		if ((number / 1000) > 0)
+		{
+			words += NumberToWords(number / 1000) + " thousand ";
+			number %= 1000;
+		}
+
+		if ((number / 100) > 0)
+		{
+			words += NumberToWords(number / 100) + " hundred ";
+			number %= 100;
+		}
+
+		if (number > 0)
+		{
+			if (words != "")
+				words += "and ";
+
+			var unitsMap = new[] { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen" };
+			var tensMap = new[] { "zero", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
+
+			if (number < 20)
+				words += unitsMap[number];
+			else
+			{
+				words += tensMap[number / 10];
+				if ((number % 10) > 0)
+					words += "-" + unitsMap[number % 10];
 			}
 		}
 
+		return words;
 	}
 
 <h3>Screenshot</h3>
@@ -69,4 +124,3 @@ Facebook Share </br>
 ![alt text](screenshots/1.png "Scene1")
 ![alt text](screenshots/2.png "Scene2")
 ![alt text](screenshots/3.png "Scene3")
-![alt text](screenshots/4.png "Scene4")
