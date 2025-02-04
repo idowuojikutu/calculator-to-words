@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreativeID Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom Styles for additional aesthetics */
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #d4fc79, #96e6a1);
+    }
+  </style>
+  <script>
+    // Function to convert numbers to words
+    function numberToWords(num) {
+      if (num === 0) return "zero";
+
+      const ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+      const teens = ["", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+      const tens = ["", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+      const thousands = ["", "million", "billion", "trillion", "quadrillion", "quintillion"];
+
+
+
+      let words = "";
+      let thousandGroup = 0;
+
+      while (num > 0) {
+        let chunk = num % 1000;
+
+        if (chunk > 0) {
+          let chunkWords = "";
+          const hundreds = Math.floor(chunk / 100);
+          const remainder = chunk % 100;
+
+          if (hundreds > 0) {
+            chunkWords += ones[hundreds] + " hundred ";
+          }
+
+          if (remainder > 10 && remainder < 20) {
+            chunkWords += teens[remainder - 10] + " ";
+          } else {
+            const tensValue = Math.floor(remainder / 10);
+            const onesValue = remainder % 10;
+
+            if (tensValue > 0) {
+              chunkWords += tens[tensValue] + " ";
+            }
+            if (onesValue > 0) {
+              chunkWords += ones[onesValue] + " ";
+            }
+          }
+
+          words = chunkWords + thousands[thousandGroup] + " " + words;
+        }
+
+        num = Math.floor(num / 1000);
+        thousandGroup++;
+      }
+
+      return words.trim();
+    }
+
+    function calculateResult() {
+      const display = document.getElementById("display");
+      const wordDisplay = document.getElementById("word-display");
+      try {
+        const result = eval(display.value);
+        display.value = result;
+        wordDisplay.textContent = numberToWords(result);
+      } catch (error) {
+        wordDisplay.textContent = "Invalid Expression";
+      }
+    }
+
+    function appendValue(value) {
+      const display = document.getElementById("display");
+      display.value += value;
+    }
+
+    function clearDisplay() {
+      document.getElementById("display").value = "";
+      document.getElementById("word-display").textContent = "";
+    }
+  </script>
+</head>
+
+<body class="flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-96">
+    <h1 class="text-3xl font-bold text-center mb-4">Idowu Ojikutu Design</h1>
+
+    <input id="display" type="text" class="w-full p-4 text-xl border rounded-lg focus:outline-none mb-4"
+      placeholder="Enter calculation" readonly>
+
+    <div id="word-display" class="text-gray-600 text-sm mb-4 h-5"></div>
+
+    <div class="grid grid-cols-4 gap-2">
+      <button onclick="appendValue('7')" class="p-4 bg-blue-100 rounded-lg font-medium">7</button>
+      <button onclick="appendValue('8')" class="p-4 bg-blue-100 rounded-lg font-medium">8</button>
+      <button onclick="appendValue('9')" class="p-4 bg-blue-100 rounded-lg font-medium">9</button>
+      <button onclick="appendValue('/')" class="p-4 bg-orange-100 rounded-lg font-medium">/</button>
+
+      <button onclick="appendValue('4')" class="p-4 bg-blue-100 rounded-lg font-medium">4</button>
+      <button onclick="appendValue('5')" class="p-4 bg-blue-100 rounded-lg font-medium">5</button>
+      <button onclick="appendValue('6')" class="p-4 bg-blue-100 rounded-lg font-medium">6</button>
+      <button onclick="appendValue('*')" class="p-4 bg-orange-100 rounded-lg font-medium">*</button>
+
+      <button onclick="appendValue('1')" class="p-4 bg-blue-100 rounded-lg font-medium">1</button>
+      <button onclick="appendValue('2')" class="p-4 bg-blue-100 rounded-lg font-medium">2</button>
+      <button onclick="appendValue('3')" class="p-4 bg-blue-100 rounded-lg font-medium">3</button>
+      <button onclick="appendValue('-')" class="p-4 bg-orange-100 rounded-lg font-medium">-</button>
+
+      <button onclick="appendValue('0')" class="p-4 bg-blue-100 rounded-lg font-medium">0</button>
+      <button onclick="appendValue('.')" class="p-4 bg-blue-100 rounded-lg font-medium">.</button>
+      <button onclick="clearDisplay()" class="p-4 bg-red-100 rounded-lg font-medium">C</button>
+      <button onclick="appendValue('+')" class="p-4 bg-orange-100 rounded-lg font-medium">+</button>
+    </div>
+
+    <button onclick="calculateResult()" class="w-full mt-4 bg-green-500 text-white p-4 rounded-lg font-bold">=</button>
+  </div>
+</body>
+
+</html>
