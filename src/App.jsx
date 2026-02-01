@@ -1,28 +1,37 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { History, Volume2, Trash2, X, Clipboard, RotateCcw } from 'lucide-react';
+import { History, Volume2, Trash2, X, Clipboard, RotateCcw, Mail, User, Calendar, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const units = {
   en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"],
   es: ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve"],
-  fr: ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"]
+  fr: ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"],
+  ar: ["صفر", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة", "عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"],
+  yo: ["odo", "okan", "eji", "eta", "erin", "arun", "efa", "eje", "ejo", "esan", "ewa", "okanla", "ejila", "etala", "erinla", "edogun", "erindinlogun", "etadinlogun", "ejidinlogun", "okandinlogun"]
 };
 
 const tens = {
   en: ["", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"],
   es: ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"],
-  fr: ["", "dix", "vingt", "trente", "quarante", "cinquante", "soixante", "soixante-dix", "quatre-vingt", "quatre-vingt-dix"]
+  fr: ["", "dix", "vingt", "trente", "quarante", "cinquante", "soixante", "soixante-dix", "quatre-vingt", "quatre-vingt-dix"],
+  ar: ["", "عشرة", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"],
+  yo: ["", "ewa", "ogun", "ogbon", "ogoji", "aadota", "ogota", "aadarin", "ogorin", "aadoun"]
 };
 
 const scales = {
   en: ["", "thousand", "million", "billion", "trillion"],
   es: ["", "mil", "millón", "mil millones", "billón"],
-  fr: ["", "mille", "million", "milliard", "billion"]
+  fr: ["", "mille", "million", "milliard", "billion"],
+  ar: ["", "ألف", "مليون", "مليار", "تريليون"],
+  yo: ["", "egberun", "miliọnu", "bilionu", "tirilionu"]
 };
 
 const numberToWords = (num, lang = 'en') => {
   if (num === 0) return units[lang][0];
-  if (num < 0) return (lang === 'en' ? 'minus ' : lang === 'es' ? 'menos ' : 'moins ') + numberToWords(Math.abs(num), lang);
+  if (num < 0) {
+    const prefix = lang === 'en' ? 'minus ' : lang === 'es' ? 'menos ' : lang === 'fr' ? 'moins ' : lang === 'ar' ? 'سالب ' : 'minus ';
+    return prefix + numberToWords(Math.abs(num), lang);
+  }
 
   let words = '';
   
@@ -33,18 +42,27 @@ const numberToWords = (num, lang = 'en') => {
       if (l === 'fr' && Math.floor(n/100) > 1) {
         str += units[l][Math.floor(n/100)] + ' cent';
         if (n % 100 === 0) str += 's';
+      } else if (l === 'ar') {
+        const h = Math.floor(n/100);
+        if (h === 1) str += 'مئة';
+        else if (h === 2) str += 'مئتان';
+        else str += units[l][h].replace('ة', '') + 'مئة';
       } else {
-        str += (Math.floor(n/100) > 1 || l !== 'es' ? units[l][Math.floor(n/100)] + ' ' : '') + (l === 'es' && Math.floor(n/100) === 1 ? 'ciento' : l === 'fr' ? 'cent' : 'hundred');
+        str += (Math.floor(n/100) > 1 || l !== 'es' ? units[l][Math.floor(n/100)] + ' ' : '') + (l === 'es' && Math.floor(n/100) === 1 ? 'ciento' : l === 'fr' ? 'cent' : l === 'yo' ? 'ogoruun' : 'hundred');
       }
       n %= 100;
-      if (n > 0) str += ' ';
+      if (n > 0) str += (l === 'ar' ? ' و ' : ' ');
     }
     if (n > 0) {
       if (n < 20) str += units[l][n];
       else {
-        str += tens[l][Math.floor(n/10)];
-        if (n % 10 > 0) {
-          str += (l === 'en' ? '-' : l === 'es' ? ' y ' : '-') + units[l][n % 10];
+        if (l === 'ar') {
+          str += (n % 10 > 0 ? units[l][n % 10] + ' و ' : '') + tens[l][Math.floor(n/10)];
+        } else {
+          str += tens[l][Math.floor(n/10)];
+          if (n % 10 > 0) {
+            str += (l === 'en' ? '-' : l === 'es' ? ' y ' : l === 'yo' ? ' le ' : '-') + units[l][n % 10];
+          }
         }
       }
     }
@@ -58,10 +76,16 @@ const numberToWords = (num, lang = 'en') => {
       let chunkWords = processHundreds(chunk, lang);
       let scale = scales[lang][chunkCount];
       
-      if (lang === 'es' && chunk === 1 && chunkCount === 1) chunkWords = ''; // "mil", not "un mil"
-      if (lang === 'fr' && chunk === 1 && chunkCount === 1) chunkWords = ''; // "mille", not "un mille"
+      if (lang === 'es' && chunk === 1 && chunkCount === 1) chunkWords = ''; 
+      if (lang === 'fr' && chunk === 1 && chunkCount === 1) chunkWords = '';
+      if (lang === 'ar') {
+        if (chunk === 1 && chunkCount === 1) chunkWords = 'ألف';
+        else if (chunk === 2 && chunkCount === 1) chunkWords = 'ألفان';
+        else if (chunk >= 3 && chunk <= 10 && chunkCount === 1) scale = 'آلاف';
+      }
       
-      words = chunkWords + (scale ? ' ' + scale : '') + (words ? ' ' + words : '');
+      const connector = (lang === 'ar' && words) ? ' و ' : (words ? ' ' : '');
+      words = chunkWords + (scale && chunkWords !== 'ألف' && chunkWords !== 'ألفان' ? ' ' + scale : (chunkWords === 'ألف' || chunkWords === 'ألفان' ? '' : '')) + connector + words;
     }
     num = Math.floor(num / 1000);
     chunkCount++;
@@ -92,11 +116,16 @@ export default function App() {
   };
 
   const handleOperator = (op) => {
-    if (/[+\-*/%]$/.test(input)) {
-        setInput(input.slice(0, -1) + op);
+    if (input === '0' && op === '-') {
+      setInput('-');
+      return;
+    }
+    if (/[+\-*/% ] ?$/.test(input)) {
+        setInput(input.trim().slice(0, -1) + ' ' + op + ' ');
     } else {
         setInput(input + ' ' + op + ' ');
     }
+    setResult('');
   };
 
   const calculate = () => {
@@ -137,7 +166,14 @@ export default function App() {
 
   const speak = () => {
     const utterance = new SpeechSynthesisUtterance(words);
-    utterance.lang = lang === 'en' ? 'en-US' : lang === 'es' ? 'es-ES' : 'fr-FR';
+    const voices = {
+      en: 'en-US',
+      es: 'es-ES',
+      fr: 'fr-FR',
+      ar: 'ar-SA',
+      yo: 'en-GB' // Yoruba often falls back to English voice if not available, or system specific
+    };
+    utterance.lang = voices[lang] || 'en-US';
     window.speechSynthesis.speak(utterance);
   };
 
@@ -152,6 +188,8 @@ export default function App() {
           <option value="en">English (EN)</option>
           <option value="es">Español (ES)</option>
           <option value="fr">Français (FR)</option>
+          <option value="ar">العربية (AR)</option>
+          <option value="yo">Yorùbá (YO)</option>
         </select>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className="icon-btn" onClick={copyToClipboard} title="Copy result"><Clipboard size={18} /></button>
@@ -160,7 +198,7 @@ export default function App() {
         </div>
       </div>
 
-      <div className="display">
+      <div className={`display ${lang === 'ar' ? 'rtl' : ''}`}>
         <div className="input-text">{input}</div>
         <div className="result-text">{result || input}</div>
         <div className="words-text">{words}</div>
@@ -179,7 +217,10 @@ export default function App() {
         <button className="operator" onClick={() => handleOperator('+')}>+</button>
 
         {[1, 2, 3].map(n => <button key={n} onClick={() => handleNumber(n)}>{n}</button>)}
-        <button key="dot" onClick={() => { if(!input.includes('.')) setInput(input + '.') }}>.</button>
+        <button key="dot" onClick={() => { 
+          const lastPart = input.split(/[+\-*/%]/).pop();
+          if(!lastPart.includes('.')) setInput(input + '.') 
+        }}>.</button>
 
         <button onClick={() => handleNumber(0)}>0</button>
         <button className="equals" onClick={calculate}>=</button>
@@ -210,6 +251,28 @@ export default function App() {
           )}
         </div>
       </div>
+
+      <footer className="author-footer">
+        <div className="footer-line"></div>
+        <div className="author-info">
+          <div className="author-name">
+            <User size={14} className="icon" />
+            <span>Developer: <strong>Idowu Ojikutu A.</strong></span>
+          </div>
+          <div className="author-year">
+            <Calendar size={14} className="icon" />
+            <span>{new Date().getFullYear()}</span>
+          </div>
+        </div>
+        <div className="contact-info">
+          <div className="contact-label">For Collaboration & Gigs:</div>
+          <a href="mailto:ojikutuidowu@yahoo.com" className="contact-link">
+            <Mail size={14} className="icon" />
+            <span>ojikutuidowu@yahoo.com</span>
+            <ExternalLink size={12} className="external-icon" />
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
