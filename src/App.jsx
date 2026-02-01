@@ -257,7 +257,7 @@ export default function App() {
         <div className="author-info">
           <div className="author-name">
             <User size={14} className="icon" />
-            <span>Developer: <strong>Idowu Ojikutu A.</strong></span>
+            <span>Developer: <strong>Idowu Ojikutu</strong></span>
           </div>
           <div className="author-year">
             <Calendar size={14} className="icon" />

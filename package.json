@@ -1,7 +1,7 @@
 {
   "name": "calculator-to-words",
   "version": "1.0.0",
-  "description": "Developer:Idowu Ojikutu A.",
+  "description": "Developer:Idowu Ojikutu",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/idowuojikutu/calculator-to-words.git"
   },    
   "keywords": [],
-  "author": "Idowu Ojikutu A.",
+  "author": "Idowu Ojikutu",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/idowuojikutu/calculator-to-words#issues"
