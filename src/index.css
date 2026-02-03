@@ -1,14 +1,38 @@
 :root {
-  --primary: #8b5cf6; /* Vibrant Violet */
+  --primary: #8b5cf6;
   --primary-hover: #7c3aed;
   --bg-dark: #030712;
   --glass-bg: rgba(15, 23, 42, 0.6);
   --glass-border: rgba(255, 255, 255, 0.12);
   --text-primary: #f9fafb;
   --text-secondary: #94a3b8;
-  --accent: #2dd4bf; /* Vibrant Teal */
+  --accent: #2dd4bf;
   --error: #f43f5e;
   --success: #10b981;
+}
+
+[data-theme='midnight'] {
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --bg-dark: #000000;
+  --glass-bg: rgba(15, 23, 42, 0.8);
+  --accent: #60a5fa;
+}
+
+[data-theme='emerald'] {
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --bg-dark: #064e3b;
+  --glass-bg: rgba(6, 78, 59, 0.6);
+  --accent: #fbbf24;
+}
+
+[data-theme='sunset'] {
+  --primary: #f97316;
+  --primary-hover: #ea580c;
+  --bg-dark: #450a0a;
+  --glass-bg: rgba(69, 10, 10, 0.6);
+  --accent: #f43f5e;
 }
 
 .glass {
@@ -101,19 +125,17 @@ body {
   font-weight: 400;
 }
 
-.keypad {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+.keypad.scientific {
+  grid-template-columns: repeat(5, 1fr);
 }
 
 button {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
-  padding: 20px;
+  padding: 20px 10px;
   border-radius: 16px;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -133,18 +155,27 @@ button:active {
 
 button.operator {
   background: rgba(139, 92, 246, 0.1);
-  color: #a78bfa;
+  color: var(--primary);
+}
+
+button.operator.sci {
+  background: rgba(45, 212, 191, 0.1);
+  color: var(--accent);
+  font-size: 0.9rem;
 }
 
 button.operator:hover {
   background: rgba(139, 92, 246, 0.2);
-  color: #c4b5fd;
 }
 
 button.equals {
   background: linear-gradient(135deg, var(--primary), #6d28d9);
   grid-column: span 2;
   box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.keypad.scientific button.equals {
+  grid-column: span 1;
 }
 
 button.equals:hover {
@@ -163,7 +194,7 @@ button.clear {
   top: 0;
   width: 300px;
   height: 100vh;
-  background: rgba(15, 23, 42, 0.95);
+  background: var(--bg-dark);
   backdrop-filter: blur(20px);
   border-left: 1px solid var(--glass-border);
   z-index: 50;
@@ -212,9 +243,9 @@ button.clear {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
-  padding: 4px 12px;
+  padding: 4px 8px;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   outline: none;
 }
 
@@ -222,6 +253,14 @@ button.clear {
   padding: 8px;
   border-radius: 12px;
   background: var(--glass-bg);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.icon-btn.active {
+  color: var(--primary);
+  background: rgba(139, 92, 246, 0.15);
+  border-color: var(--primary);
 }
 
 /* Footer Styling */
