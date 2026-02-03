@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { History, Volume2, Trash2, X, Clipboard, RotateCcw, Mail, User, Calendar, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -27,59 +27,59 @@ const scales = {
 };
 
 const numberToWords = (num, lang = 'en', type = 'cardinal') => {
-  if (num === 0) return units[lang][0];
+  if (num === 0) return units[lang]?.[0] || "zero";
+  if (!isFinite(num)) return lang === 'ar' ? 'ما لا نهاية' : 'Infinity';
+  if (isNaN(num)) return lang === 'ar' ? 'ليس رقماً' : 'Not a number';
   
   const isNegative = num < 0;
   const absoluteNum = Math.abs(num);
   const integerPart = Math.floor(absoluteNum);
   const decimalPart = Math.round((absoluteNum - integerPart) * 100);
 
-  const getIntegerWords = (n) => {
-    if (n === 0) return units[lang][0];
-    let words = '';
-    
-    const processHundreds = (val, l) => {
-      let str = '';
-      if (val >= 100) {
-        if (l === 'es' && val === 100) return 'cien';
-        if (l === 'fr' && Math.floor(val/100) > 1) {
-          str += units[l][Math.floor(val/100)] + ' cent';
-          if (val % 100 === 0) str += 's';
-        } else if (l === 'ar') {
-          const h = Math.floor(val/100);
-          if (h === 1) str += 'مئة';
-          else if (h === 2) str += 'مئتان';
-          else str += units[l][h].replace('ة', '') + 'مئة';
-        } else {
-          str += (Math.floor(val/100) > 1 || l !== 'es' ? units[l][Math.floor(val/100)] + ' ' : '') + (l === 'es' && Math.floor(val/100) === 1 ? 'ciento' : l === 'fr' ? 'cent' : l === 'yo' ? 'ogoruun' : 'hundred');
-        }
-        val %= 100;
-        if (val > 0) str += (l === 'ar' ? ' و ' : ' ');
+  const processHundreds = (val, l) => {
+    let str = '';
+    if (val >= 100) {
+      if (l === 'es' && val === 100) return 'cien';
+      if (l === 'fr' && Math.floor(val/100) > 1) {
+        str += units[l][Math.floor(val/100)] + ' cent';
+        if (val % 100 === 0) str += 's';
+      } else if (l === 'ar') {
+        const h = Math.floor(val/100);
+        if (h === 1) str += 'مئة';
+        else if (h === 2) str += 'مئتان';
+        else str += (units[l][h] || "").replace('ة', '') + 'مئة';
+      } else {
+        str += (Math.floor(val/100) > 1 || l !== 'es' ? units[l][Math.floor(val/100)] + ' ' : '') + (l === 'es' && Math.floor(val/100) === 1 ? 'ciento' : l === 'fr' ? 'cent' : l === 'yo' ? 'ogoruun' : 'hundred');
       }
-      if (val > 0) {
-        if (val < 20) str += units[l][val];
-        else {
-          if (l === 'ar') {
-            str += (val % 10 > 0 ? units[l][val % 10] + ' و ' : '') + tens[l][Math.floor(val/10)];
-          } else {
-            str += tens[l][Math.floor(val/10)];
-            if (val % 10 > 0) {
-              str += (l === 'en' ? '-' : l === 'es' ? ' y ' : l === 'yo' ? ' le ' : '-') + units[l][val % 10];
-            }
+      val %= 100;
+      if (val > 0) str += (l === 'ar' ? ' و ' : ' ');
+    }
+    if (val > 0) {
+      if (val < 20) str += units[l][val];
+      else {
+        if (l === 'ar') {
+          str += (val % 10 > 0 ? units[l][val % 10] + ' و ' : '') + tens[l][Math.floor(val/10)];
+        } else {
+          str += tens[l][Math.floor(val/10)];
+          if (val % 10 > 0) {
+            str += (l === 'en' ? '-' : l === 'es' ? ' y ' : l === 'yo' ? ' le ' : '-') + units[l][val % 10];
           }
         }
       }
-      return str.trim();
-    };
+    }
+    return str.trim();
+  };
 
+  const getIntegerWords = (n) => {
+    if (n === 0) return units[lang][0];
+    let words = '';
     let chunkCount = 0;
     let tempNum = n;
-    while (tempNum > 0) {
+    while (tempNum > 0 && chunkCount < 5) {
       let chunk = tempNum % 1000;
       if (chunk > 0) {
         let chunkWords = processHundreds(chunk, lang);
         let scale = scales[lang][chunkCount];
-        
         if (lang === 'es' && chunk === 1 && chunkCount === 1) chunkWords = ''; 
         if (lang === 'fr' && chunk === 1 && chunkCount === 1) chunkWords = '';
         if (lang === 'ar') {
@@ -87,7 +87,6 @@ const numberToWords = (num, lang = 'en', type = 'cardinal') => {
           else if (chunk === 2 && chunkCount === 1) chunkWords = 'ألفان';
           else if (chunk >= 3 && chunk <= 10 && chunkCount === 1) scale = 'آلاف';
         }
-        
         const connector = (lang === 'ar' && words) ? ' و ' : (words ? ' ' : '');
         words = chunkWords + (scale && chunkWords !== 'ألف' && chunkWords !== 'ألفان' ? ' ' + scale : (chunkWords === 'ألف' || chunkWords === 'ألفان' ? '' : '')) + connector + words;
       }
@@ -97,7 +96,7 @@ const numberToWords = (num, lang = 'en', type = 'cardinal') => {
     return words.trim();
   };
 
-  let result = getIntegerWords(integerPart);
+  let textualResult = getIntegerWords(integerPart);
 
   if (type === 'currency') {
     const currencyNames = {
@@ -109,23 +108,22 @@ const numberToWords = (num, lang = 'en', type = 'cardinal') => {
     };
     const names = currencyNames[lang] || currencyNames.en;
     const intWord = integerPart === 1 ? names.single : names.plural;
-    result = `${result} ${intWord}`;
-    
+    textualResult = `${textualResult} ${intWord}`;
     if (decimalPart > 0) {
       const and = lang === 'ar' ? ' و ' : lang === 'es' ? ' con ' : ' and ';
-      result += `${and}${getIntegerWords(decimalPart)} ${names.cents}`;
+      textualResult += `${and}${getIntegerWords(decimalPart)} ${names.cents}`;
     }
   } else if (decimalPart > 0) {
     const point = lang === 'es' ? ' coma ' : lang === 'fr' ? ' virgule ' : lang === 'ar' ? ' فاصلة ' : ' point ';
-    result += `${point}${getIntegerWords(decimalPart)}`;
+    textualResult += `${point}${getIntegerWords(decimalPart)}`;
   }
 
   if (isNegative) {
     const prefix = lang === 'en' ? 'minus ' : lang === 'es' ? 'menos ' : lang === 'fr' ? 'moins ' : lang === 'ar' ? 'سالب ' : 'minus ';
-    result = prefix + result;
+    textualResult = prefix + textualResult;
   }
 
-  return result;
+  return textualResult;
 };
 
 export default function App() {
@@ -140,9 +138,14 @@ export default function App() {
   const [theme, setTheme] = useState('default');
 
   useEffect(() => {
-    const val = parseFloat(result || input);
-    if (!isNaN(val)) {
-      setWords(numberToWords(val, lang, isCurrencyMode ? 'currency' : 'cardinal'));
+    try {
+      const val = parseFloat(result || input);
+      if (!isNaN(val)) {
+        setWords(numberToWords(val, lang, isCurrencyMode ? 'currency' : 'cardinal'));
+      }
+    } catch (err) {
+      console.error("Error generating words:", err);
+      setWords("Error");
     }
   }, [input, result, lang, isCurrencyMode]);
 
