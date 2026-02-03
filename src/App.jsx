@@ -197,7 +197,14 @@ export default function App() {
 
   const calculate = () => {
     try {
-      const res = Function('"use strict";return (' + input.replace('X', '*') + ')')();
+      let expr = input.replace('X', '*').replace('÷', '/');
+      expr = expr.replace(/sin\(/g, 'Math.sin(');
+      expr = expr.replace(/cos\(/g, 'Math.cos(');
+      expr = expr.replace(/tan\(/g, 'Math.tan(');
+      expr = expr.replace(/log\(/g, 'Math.log10(');
+      expr = expr.replace(/sqrt\(/g, 'Math.sqrt(');
+
+      const res = Function('"use strict";return (' + expr + ')')();
       const roundedRes = Math.round(res * 100) / 100;
       setResult(roundedRes.toString());
       

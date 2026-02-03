@@ -125,6 +125,12 @@ body {
   font-weight: 400;
 }
 
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
 .keypad.scientific {
   grid-template-columns: repeat(5, 1fr);
 }
