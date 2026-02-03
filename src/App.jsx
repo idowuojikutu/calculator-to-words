@@ -133,7 +133,6 @@ export default function App() {
   const [lang, setLang] = useState('en');
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [history, setHistory] = useState([]);
-  const [isScientific, setIsScientific] = useState(false);
   const [isCurrencyMode, setIsCurrencyMode] = useState(false);
   const [theme, setTheme] = useState('default');
 
@@ -159,31 +158,6 @@ export default function App() {
     setResult('');
   };
 
-  const handleScientific = (func) => {
-    const val = parseFloat(result || input);
-    if (isNaN(val)) return;
-    
-    let res;
-    switch(func) {
-      case 'sin': res = Math.sin(val); break;
-      case 'cos': res = Math.cos(val); break;
-      case 'tan': res = Math.tan(val); break;
-      case 'log': res = Math.log10(val); break;
-      case 'sqrt': res = Math.sqrt(val); break;
-      default: return;
-    }
-    const roundedRes = Math.round(res * 100) / 100;
-    setResult(roundedRes.toString());
-    setInput(`${func}(${val})`);
-    
-    const newEntry = {
-      expression: `${func}(${val})`,
-      result: roundedRes,
-      words: numberToWords(roundedRes, lang, isCurrencyMode ? 'currency' : 'cardinal'),
-      timestamp: new Date().toLocaleTimeString()
-    };
-    setHistory([newEntry, ...history].slice(0, 20));
-  };
 
   const handleOperator = (op) => {
     if (input === '0' && op === '-') {
@@ -200,12 +174,7 @@ export default function App() {
 
   const calculate = () => {
     try {
-      let expr = input.replace('X', '*').replace('÷', '/');
-      expr = expr.replace(/sin\(/g, 'Math.sin(');
-      expr = expr.replace(/cos\(/g, 'Math.cos(');
-      expr = expr.replace(/tan\(/g, 'Math.tan(');
-      expr = expr.replace(/log\(/g, 'Math.log10(');
-      expr = expr.replace(/sqrt\(/g, 'Math.sqrt(');
+      let expr = input.replace('X', '*').replace('÷', '/').replace('−', '-');
 
       const res = Function('"use strict";return (' + expr + ')')();
       const roundedRes = Math.round(res * 100) / 100;
@@ -277,7 +246,6 @@ export default function App() {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className={`icon-btn ${isCurrencyMode ? 'active' : ''}`} onClick={() => setIsCurrencyMode(!isCurrencyMode)} title="Currency Mode">$</button>
-          <button className={`icon-btn ${isScientific ? 'active' : ''}`} onClick={() => setIsScientific(!isScientific)} title="Scientific Mode">f(x)</button>
           <button className="icon-btn" onClick={copyToClipboard} title="Copy result"><Clipboard size={18} /></button>
           <button className="icon-btn" onClick={speak} title="Read aloud"><Volume2 size={18} /></button>
           <button className="icon-btn" onClick={() => setIsHistoryOpen(true)} title="History"><History size={18} /></button>
@@ -290,16 +258,7 @@ export default function App() {
         <div className="words-text">{words}</div>
       </div>
 
-      <div className={`keypad ${isScientific ? 'scientific' : ''}`}>
-        {isScientific && (
-          <>
-            <button className="operator sci" onClick={() => handleScientific('sin')}>sin</button>
-            <button className="operator sci" onClick={() => handleScientific('cos')}>cos</button>
-            <button className="operator sci" onClick={() => handleScientific('tan')}>tan</button>
-            <button className="operator sci" onClick={() => handleScientific('log')}>log</button>
-            <button className="operator sci" onClick={() => handleScientific('sqrt')}>√</button>
-          </>
-        )}
+      <div className="keypad">
         <button className="operator clear" onClick={clear}>AC</button>
         <button className="operator" onClick={() => handleOperator('%')}>%</button>
         <button className="operator" onClick={() => handleOperator('/')}>÷</button>
@@ -317,7 +276,7 @@ export default function App() {
           if(!lastPart.includes('.')) setInput(input + '.') 
         }}>.</button>
 
-        <button onClick={() => handleNumber(0)}>0</button>
+        <button className="zero-btn" onClick={() => handleNumber(0)}>0</button>
         <button className="equals" onClick={calculate}>=</button>
       </div>
 

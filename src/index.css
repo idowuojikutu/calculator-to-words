@@ -131,9 +131,7 @@ body {
   gap: 12px;
 }
 
-.keypad.scientific {
-  grid-template-columns: repeat(5, 1fr);
-}
+
 
 button {
   background: var(--glass-bg);
@@ -164,25 +162,22 @@ button.operator {
   color: var(--primary);
 }
 
-button.operator.sci {
-  background: rgba(45, 212, 191, 0.1);
-  color: var(--accent);
-  font-size: 0.9rem;
-}
+
 
 button.operator:hover {
   background: rgba(139, 92, 246, 0.2);
 }
 
+button.equals, button.zero-btn {
+  grid-column: span 2;
+}
+
 button.equals {
   background: linear-gradient(135deg, var(--primary), #6d28d9);
-  grid-column: span 2;
   box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
 }
 
-.keypad.scientific button.equals {
-  grid-column: span 1;
-}
+
 
 button.equals:hover {
   background: linear-gradient(135deg, var(--primary-hover), #5b21b6);
