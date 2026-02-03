@@ -135,16 +135,24 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const [isCurrencyMode, setIsCurrencyMode] = useState(false);
   const [theme, setTheme] = useState('default');
+  const [shouldReset, setShouldReset] = useState(false); // New state to track if we should start a new number after =
 
   useEffect(() => {
     try {
       const val = parseFloat(result || input);
       if (!isNaN(val)) {
-        setWords(numberToWords(val, lang, isCurrencyMode ? 'currency' : 'cardinal'));
+        // Only show words if it's a result or a simple number being typed
+        const isSimpleNumber = /^-?\d*\.?\d*$/.test(input.trim());
+        if (result || isSimpleNumber) {
+          setWords(numberToWords(val, lang, isCurrencyMode ? 'currency' : 'cardinal'));
+        } else {
+          setWords('');
+        }
+      } else {
+        setWords('');
       }
     } catch (err) {
-      console.error("Error generating words:", err);
-      setWords("Error");
+      setWords('');
     }
   }, [input, result, lang, isCurrencyMode]);
 
@@ -153,32 +161,83 @@ export default function App() {
   }, [theme]);
 
   const handleNumber = (n) => {
-    if (input === '0') setInput(n.toString());
-    else setInput(input + n);
+    if (shouldReset || input === '0') {
+      setInput(n.toString());
+      setShouldReset(false);
+    } else {
+      setInput(input + n);
+    }
     setResult('');
   };
 
 
   const handleOperator = (op) => {
-    if (input === '0' && op === '-') {
-      setInput('-');
+    setShouldReset(false);
+    setResult('');
+    
+    // Convert current input to percentage if op is %
+    if (op === '%') {
+      try {
+        const parts = input.trim().split(' ');
+        const lastPart = parts[parts.length - 1];
+        if (!isNaN(parseFloat(lastPart))) {
+          const percentVal = parseFloat(lastPart) / 100;
+          parts[parts.length - 1] = percentVal.toString();
+          setInput(parts.join(' '));
+        }
+      } catch (e) {}
       return;
     }
-    if (/[+\-*/% ] ?$/.test(input)) {
-        setInput(input.trim().slice(0, -1) + ' ' + op + ' ');
+
+    const trimmed = input.trim();
+    if (trimmed === '' || trimmed === '-') return;
+    
+    const lastChar = trimmed.slice(-1);
+    const operators = ['+', '-', '*', '/'];
+    
+    if (operators.includes(lastChar)) {
+      // Allow negative sign after * or /
+      if ((lastChar === '*' || lastChar === '/') && op === '-') {
+        setInput(input + ' -');
+      } else {
+        setInput(trimmed.slice(0, -1) + ' ' + op + ' ');
+      }
     } else {
-        setInput(input + ' ' + op + ' ');
+      setInput(trimmed + ' ' + op + ' ');
     }
-    setResult('');
   };
 
   const calculate = () => {
     try {
-      let expr = input.replace('X', '*').replace('÷', '/').replace('−', '-');
+      let trimmed = input.trim();
+      if (!trimmed || trimmed === '-') return;
+      
+      // Remove trailing operator
+      const operators = ['+', '-', '*', '/'];
+      if (operators.includes(trimmed.slice(-1))) {
+        trimmed = trimmed.slice(0, -1).trim();
+      }
+
+      // Convert expression for evaluation
+      const expr = trimmed.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+      
+      // Basic security check and evaluation
+      if (!/^[\d\s+*/.()\-]+$/.test(expr)) {
+          setResult('Error');
+          return;
+      }
 
       const res = Function('"use strict";return (' + expr + ')')();
-      const roundedRes = Math.round(res * 100) / 100;
+      
+      if (res === undefined || res === null || !isFinite(res)) {
+        setResult('Error');
+        return;
+      }
+
+      const roundedRes = Math.round(res * 1000000) / 1000000; // More precision
       setResult(roundedRes.toString());
+      setInput(roundedRes.toString());
+      setShouldReset(true);
       
       const newEntry = {
         expression: input,
@@ -188,7 +247,6 @@ export default function App() {
       };
       
       setHistory([newEntry, ...history].slice(0, 20));
-      setInput(roundedRes.toString());
 
       if (roundedRes > 1000) {
         confetti({
@@ -207,6 +265,7 @@ export default function App() {
     setInput('0');
     setResult('');
     setWords('zero');
+    setShouldReset(false);
   };
 
   const speak = () => {
