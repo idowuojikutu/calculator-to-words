@@ -243,11 +243,11 @@ export default function App() {
       <div className="controls-top">
         <div style={{ display: 'flex', gap: '8px' }}>
           <select className="lang-selector" value={lang} onChange={(e) => setLang(e.target.value)}>
-            <option value="en">EN</option>
-            <option value="es">ES</option>
-            <option value="fr">FR</option>
-            <option value="ar">AR</option>
-            <option value="yo">YO</option>
+            <option value="en">English (EN)</option>
+            <option value="es">Español (ES)</option>
+            <option value="fr">Français (FR)</option>
+            <option value="ar">العربية (AR)</option>
+            <option value="yo">Yorùbá (YO)</option>
           </select>
           <select className="lang-selector" value={theme} onChange={(e) => setTheme(e.target.value)}>
             <option value="default">Violet</option>
@@ -323,7 +323,7 @@ export default function App() {
         <div className="author-info">
           <div className="author-name">
             <User size={14} className="icon" />
-            <span>Developer: <strong>Idowu Ojikutu</strong></span>
+            <span>Developer: <strong>Idowu Ojikutu A.</strong></span>
           </div>
           <div className="author-year">
             <Calendar size={14} className="icon" />
