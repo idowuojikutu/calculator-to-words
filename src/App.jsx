@@ -47,6 +47,7 @@ const numberToWords = (num, lang = 'en', type = 'cardinal') => {
         const h = Math.floor(val/100);
         if (h === 1) str += 'مئة';
         else if (h === 2) str += 'مئتان';
+        else if (h === 8) str += 'ثمانمئة';
         else str += (units[l][h] || "").replace('ة', '') + 'مئة';
       } else {
         str += (Math.floor(val/100) > 1 || l !== 'es' ? units[l][Math.floor(val/100)] + ' ' : '') + (l === 'es' && Math.floor(val/100) === 1 ? 'ciento' : l === 'fr' ? 'cent' : l === 'yo' ? 'ogoruun' : 'hundred');
@@ -59,10 +60,27 @@ const numberToWords = (num, lang = 'en', type = 'cardinal') => {
       else {
         if (l === 'ar') {
           str += (val % 10 > 0 ? units[l][val % 10] + ' و ' : '') + tens[l][Math.floor(val/10)];
+        } else if (l === 'es') {
+          if (val > 20 && val < 30) {
+            const es20 = ["", "veintiuno", "veintidós", "veintitrés", "veinticuatro", "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve"];
+            str += es20[val % 10];
+          } else {
+            str += tens[l][Math.floor(val/10)];
+            if (val % 10 > 0) str += ' y ' + units[l][val % 10];
+          }
+        } else if (l === 'fr') {
+          if (val >= 70 && val < 80) {
+            str += 'soixante-' + (val === 71 ? 'et-onze' : units[l][val - 60]);
+          } else if (val >= 90 && val < 100) {
+            str += 'quatre-vingt-' + units[l][val - 80];
+          } else {
+            str += tens[l][Math.floor(val/10)];
+            if (val % 10 > 0) str += (val % 10 === 1 ? ' et ' : '-') + units[l][val % 10];
+          }
         } else {
           str += tens[l][Math.floor(val/10)];
           if (val % 10 > 0) {
-            str += (l === 'en' ? '-' : l === 'es' ? ' y ' : l === 'yo' ? ' le ' : '-') + units[l][val % 10];
+            str += (l === 'en' ? '-' : l === 'yo' ? ' le ' : '-') + units[l][val % 10];
           }
         }
       }
